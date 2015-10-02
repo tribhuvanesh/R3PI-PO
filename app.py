@@ -3,37 +3,33 @@ __author__ = 'tribhu'
 
 from flask import Flask, jsonify, abort, make_response, url_for, request
 
+from persistent_helpers import get_recipe_info, get_recipe_ids
+
 app = Flask(__name__)
-
-recipe_blob_list = [
-    {
-        'id': 1,
-        'title': u'Buy groceries',
-        'description': u'Milk, Cheese, Pizza, Fruit, Tylenol',
-        'done': False
-    },
-    {
-        'id': 2,
-        'title': u'Learn Python',
-        'description': u'Need to find a good Python tutorial on the web',
-        'done': False
-    }
-]
-
 
 @app.route('/recipes/api/v1.0/recipes', methods=['GET'])
 def get_recipes():
-    return jsonify({'recipes': [make_public_task(recipe_blob) for recipe_blob in recipe_blob_list]})
+    """
+    @return: a JSON RecipeList object
+    """
+    return get_recipe_ids()
 
 
 @app.route('/recipes/api/v1.0/ask', methods=['GET'])
 def get_recipe():
+    """get_recipe requires two GET parameters:
+    a. recipe_id - the recipe ID number
+    b. text - the (sepeech-converted) textual command
+
+    @return: a JSON Recipe object
+    """
     recipe_id =  int(request.args.get('recipe_id'))
     text = request.args.get('text')
-    recipe_blob = [recipe_blob for recipe_blob in recipe_blob_list if recipe_blob['id'] == recipe_id]
-    if len(recipe_blob) == 0:
+    recipe_blob = get_recipe_info(recipe_id)
+
+    if recipe_blob == None:
         abort(404)
-    return jsonify({'recipes': recipe_blob[0]})
+    return recipe_blob
 
 
 @app.errorhandler(404)
