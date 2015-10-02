@@ -1,7 +1,7 @@
 #!flask/bin/python
 __author__ = 'tribhu'
 
-from flask import Flask, jsonify, abort, make_response, url_for
+from flask import Flask, jsonify, abort, make_response, url_for, request
 
 app = Flask(__name__)
 
@@ -26,8 +26,10 @@ def get_recipes():
     return jsonify({'recipes': [make_public_task(recipe_blob) for recipe_blob in recipe_blob_list]})
 
 
-@app.route('/recipes/api/v1.0/recipes/<int:recipe_id>', methods=['GET'])
-def get_recipe(recipe_id):
+@app.route('/recipes/api/v1.0/ask', methods=['GET'])
+def get_recipe():
+    recipe_id =  int(request.args.get('recipe_id'))
+    text = request.args.get('text')
     recipe_blob = [recipe_blob for recipe_blob in recipe_blob_list if recipe_blob['id'] == recipe_id]
     if len(recipe_blob) == 0:
         abort(404)
