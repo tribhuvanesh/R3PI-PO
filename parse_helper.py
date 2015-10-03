@@ -185,7 +185,7 @@ def respond_to_ing_qty(text, recipe_id):
     candidates = sorted(candidates, key=lambda x:-x[1])
 
     if len(candidates) == 0:
-        response = "%s is not necessary" % query_ingredient
+        response = "For this recipe %s is not necessary." % query_ingredient
     #elif len(candidates) == 1:
     else:
         response = "You will need %s %s of %s." % (ing_dct[candidates[0][0]][0], ing_dct[candidates[0][0]][1], candidates[0][0])
