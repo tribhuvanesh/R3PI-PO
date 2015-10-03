@@ -13,6 +13,7 @@ import sqlite3
 
 from persistent_helpers import get_recipe_info, get_recipe_short_descriptions
 from parse_helper import route_command
+from hardware_helpers import get_latest_temperatures, get_oven_temperature
 
 context = None
 try:
@@ -51,28 +52,17 @@ def store_temperature():
     return 'OK'
 
 
+@app.route('/get_temp_list', methods=['GET'])
+def get_temperature_list():
+    response = get_latest_temperatures()
+    return json.dumps({'response': response})
+
+
 @app.route('/get_temp', methods=['GET'])
 def get_temperature():
-    query = """SELECT * FROM TEMPERATURE ORDER BY TIMESTAMP DESC LIMIT 10;""";
-    conn = sqlite3.connect('temperature.db')
-    cur = conn.cursor()
-    cur.execute(query)
-
-    ts_list = []
-    temp_list = []
-
-    for row in cur:
-        id, temp, timestamp = row
-        print id, temp, timestamp
-        temp_list += [temp, ]
-        ts_list += [timestamp, ]
-
-    cur.close()
-    conn.close()
-
-    response = {'ts_list' : ts_list, 'temp_list' : temp_list}
-
-    return json.dumps({'response': response})
+    temperature = get_oven_temperature()
+    response = {'response' : temperature}
+    return json.dumps(response)
 
 
 @app.route('/recipes/api/v1.0/recipe_info', methods=['GET'])
