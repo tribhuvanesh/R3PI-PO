@@ -2,6 +2,7 @@
 __author__ = 'tribhu'
 
 import json
+import ssl
 
 from flask import Flask, jsonify, abort, make_response, url_for, request
 from flask.ext.cors import CORS, cross_origin
@@ -11,6 +12,12 @@ import requests
 from persistent_helpers import get_recipe_info, get_recipe_short_descriptions
 from parse_helper import route_command
 
+context = None
+try:
+    context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
+    context.load_cert_chain('server.crt', 'server.key')
+except:
+    pass
 app = Flask(__name__, static_url_path='')
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
@@ -24,6 +31,12 @@ def get_recipes():
     """
     return get_recipe_short_descriptions()
 
+
+@app.route('/temp', methods=['GET'])
+def store_temperature():
+    value = float(request.args.get('t'))
+    print value
+    return 'OK'
 
 @app.route('/recipes/api/v1.0/recipe_info', methods=['GET'])
 @cross_origin()
@@ -80,4 +93,4 @@ def make_public_task(recipe):
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, ssl_context=context)
