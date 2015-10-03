@@ -2,6 +2,12 @@
 import json
 import os
 import urllib2
+import httplib2 as http
+
+try:
+    from urlparse import urlparse
+except ImportError:
+    from urllib.parse import urlparse
 
 from flask import Flask, jsonify
 from creds import bigOvenAPIkey
@@ -51,7 +57,8 @@ def get_recipe_ids():
     #return jsonify({'list': recipe_blob_dct.keys()})
 
 
-def get_recipe_info(recipe_id):
+def 
+(recipe_id):
     """Information about the recipe
 
     @type recipe_id: number
@@ -68,6 +75,15 @@ def get_recipe_info(recipe_id):
     lst = get_recipe_ids()
     if recipe_id not in lst:
         url_path = "http://api.bigoven.com/recipe/" + str(recipe_id) + "?api_key=" + bigOvenAPIkey
+        headers = {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json; charset=UTF-8'
+        }
+        method = 'GET'
+        body = ' '
+        h = http.Http()
+        content = h.request(url_path, method, body, headers)
+        recipe_info_str = json.loads(content)
         resp =  urllib2.urlopen(url_path).read()
         print resp
         recipe_info_str = json.loads(resp)
