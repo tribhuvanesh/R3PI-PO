@@ -138,7 +138,7 @@ def respond_to_step(text, recipe_id):
 
     # Construct response
     if step_num > num_instructions:
-        response = "Step %d does not exist. There are %d steps." % (step_num, num_instructions)
+        response = "Step %d does not exist. There are just %d steps." % (step_num, num_instructions)
     else:
         response = instructions[step_num-1]
 
@@ -188,7 +188,7 @@ def respond_to_ing_qty(text, recipe_id):
         response = "%s is not necessary" % query_ingredient
     #elif len(candidates) == 1:
     else:
-        response = "%s %s required" % ing_dct[candidates[0][0]]
+        response = "You will need %s %s of %s." % (ing_dct[candidates[0][0]][0], ing_dct[candidates[0][0]][1], candidates[0][0])
     #else:
     #    response = "Did you mean %s? %s %s required" % (candidates[0][0], ing_dct[candidates[0][0]][0], ing_dct[candidates[0][0]][1])
 
@@ -290,7 +290,7 @@ def respond_to_step_use(text, recipe_id):
         response = '%s not used in any step.' % query_ingredient
     elif len(candidates) == 1:
         instruc, step_num, num_matches = candidates[0]
-        response = 'In step %d. %s' % (step_num, instruc)
+        response = "You'll need %s in step %d. %s" % (query_ingredient, step_num, instruc)
     else:
         # Get list of steps where its used
         steps_used = [str(cand[1]) for cand in candidates]
@@ -310,9 +310,9 @@ def respond_to_cal(text, recipe_id):
     calories = recipe_info.get("Calories", None)
 
     if calories is None:
-        response = "Nutritional value unavailable."
+        response = "Sorry, I don't know many calories this dish contains."
     else:
-        response = "This dish contains %s kilocalories" % calories
+        response = "This dish contains %s kilocalories. Yay." % calories
 
     return json.dumps({'response' : response})
 
@@ -367,7 +367,8 @@ def main():
     # text = "what is step two"
     # print respond_to_ing_qty(text, recipe_id)
     # text = "what is step three"
-    text = "how long do i parboil the red potatoes"
+    # text = "how long do i parboil the red potatoes"
+    text = "How much honey"
     print route_command(text, recipe_id)
 
 if __name__ == '__main__':
