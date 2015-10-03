@@ -15,7 +15,6 @@ def get_latest_temperatures():
         # print type(timestamp)
         # timestamp = time.mktime(timestamp.timetuple())
         epochmills = time.mktime(datetime.datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S").timetuple())
-        print epochmills
         temp_list += [temp, ]
         ts_list += [epochmills, ]
 
