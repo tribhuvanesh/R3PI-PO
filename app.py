@@ -2,21 +2,27 @@
 __author__ = 'tribhu'
 
 from flask import Flask, jsonify, abort, make_response, url_for, request
+from flask.ext.cors import CORS, cross_origin
 
-from persistent_helpers import get_recipe_info, get_recipe_ids
+from persistent_helpers import get_recipe_info, get_recipe_short_descriptions
 from parse_helper import route_command
 
 app = Flask(__name__)
+cors = CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
+
 
 @app.route('/recipes/api/v1.0/recipes', methods=['GET'])
+@cross_origin()
 def get_recipes():
     """
     @return: a JSON RecipeList object
     """
-    return get_recipe_ids()
+    return get_recipe_short_descriptions()
 
 
 @app.route('/recipes/api/v1.0/recipe_info', methods=['GET'])
+@cross_origin()
 def get_recipes_info():
     """
     @return: a JSON RecipeList object
@@ -26,6 +32,7 @@ def get_recipes_info():
 
 
 @app.route('/recipes/api/v1.0/ask', methods=['GET'])
+@cross_origin()
 def get_recipe():
     """get_recipe requires two GET parameters:
     a. recipe_id - the recipe ID number

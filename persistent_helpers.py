@@ -11,7 +11,6 @@ except ImportError:
     from urllib.parse import urlparse
 
 from flask import Flask, jsonify
-from creds import bigOvenAPIkey
 
 recipe_blob_dct = {
     1 : {
@@ -34,9 +33,8 @@ recipe_blob_dct = {
     }
 }
 
-
 def get_recipe_ids():
-    """Returns a list of valid recipe IDS
+    """Returns a list of valid recipe IDS.
 
     @return: a JSON object - list of recipe IDs, where recipe ID is a number
     """
@@ -53,7 +51,34 @@ def get_recipe_ids():
         if ".json" in item:
             tempName = os.path.splitext(item)[0]
             lst.append(int(tempName))
+    response = json.dumps({'response' : lst})
+    return response
 
+def get_recipe_short_descriptions():
+    """Returns a list of valid recipe IDS with small descriptions.
+
+    @return: a JSON object - list of recipe IDs, where recipe ID is a number
+    """
+    """
+    1. Get listing of files in the directory
+    2. Make array of integers with the names of the files
+    """
+
+    dirListing = os.listdir("recipeJSONs/")
+    lst = []
+    tempName = []
+
+    for item in dirListing:
+        if ".json" in item:
+            tempName = os.path.splitext(item)[0]
+            with open(os.path.join("recipeJSONs", item)) as f:
+              recipeInfo = json.load(f)
+              lst.append({
+                "RecipeID": recipeInfo["RecipeID"],
+                "Title": recipeInfo["Title"],
+                "Description": recipeInfo["Description"],
+                "ImageURL": recipeInfo["ImageURL"]
+              })
     response = json.dumps({'response' : lst})
     return response
     #return jsonify({'list': recipe_blob_dct.keys()})
