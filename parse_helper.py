@@ -151,7 +151,7 @@ def respond_to_ing_qty(text, recipe_id):
     """
     # What is the ingredient?
     # Detect by simple pattern matching
-    match = re.search('how (much|many) (?P<ing>[\w -]+) (do i|is req|is need)?', text)
+    match = re.search('how (much|many) (?P<ing>[\w -]+)(\w(do i|is req|is need)?)?', text)
     query_ingredient = match.group('ing')
 
     # What are the ingredients in this recipe?
@@ -311,8 +311,8 @@ def text2int(textnum, numwords={}):
 
 
 def main():
-    recipe_id = 180080
-    text = "where do i use onion"
+    recipe_id = 608382
+    text = "how much honey do i need"
     # print respond_to_ing_qty(text, recipe_id)
     # text = "what is step three"
     print route_command(text, recipe_id)
