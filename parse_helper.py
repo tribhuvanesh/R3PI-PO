@@ -51,7 +51,7 @@ def exec_generic_command(recipe_id, text):
     B. how much of <X> is required?
     C. where do i use <X>?
     D. how many calories does this contain?
-    E. how long do i cook <X>?
+    E. how long do i <X>?
 
     @type recipe_id: number
     @type text: Request as String
@@ -66,7 +66,7 @@ def exec_generic_command(recipe_id, text):
     # Keywords for D
     cal_kw = ['calories']
     # Keywords for E
-    duration_kw = ['how long', 'do i cook']
+    duration_kw = ['how long do i']
 
     # Check what kind of a question it is
     step_match = sum([kw in text for kw in step_kw])
@@ -197,9 +197,52 @@ def respond_to_ing_qty(text, recipe_id):
 
 def respond_to_duration(text, recipe_id):
     """Respond to
-    how long do i cook <X>
+    how long do i <X>
+    <X> can be "bake the cake", or whatever
     """
-    response = 'None'
+    # Detect <X> by simple pattern matching
+    match = re.search('how long do i (?P<action>[\w\s -]+)', text)
+    query_action = match.group('action')
+
+    # Get tokens
+    action_tokens = recipe_tokens = nltk.word_tokenize(query_action)
+    action_tokens = set([stemmer.stem(token) for token in action_tokens])
+    action_tokens = set([token for token in action_tokens if token not in stop])
+
+    # Iterate over steps, find relevant steps, add with a score
+    # What are the steps in the recipe?
+    recipe_info_str = json.loads(get_recipe_info(recipe_id))
+    recipe_info = recipe_info_str['response']
+    raw_instructions = recipe_info["Instructions"].replace('\r', '').replace('\n', '')
+    instructions = raw_instructions.split('.')
+    num_instructions = len(instructions)
+
+    # Compare each instruction with a 'duration' keyword
+    dur_kw = set(['minutes', 'minut', 'minute', 'mins', 'min',
+    'seconds', 'second', 'secs', 'sec'])
+
+    candidates = []
+
+    for idx, instruc in enumerate(instructions):
+        instruc_tokens = nltk.word_tokenize(instruc)
+        instruc_tokens = [stemmer.stem(token) for token in instruc_tokens]
+        instruc_tokens = set([token for token in instruc_tokens if token not in stop])
+
+        is_duration_instruc = len(instruc_tokens & dur_kw) > 0
+
+        if is_duration_instruc:
+            # Calculate score
+            num_matches = instruc_tokens & action_tokens
+            candidates += [(instruc, num_matches), ]
+
+    candidates = sorted(candidates, key=lambda x: x[1])
+
+    if len(candidates) == 0:
+        response = 'error'
+    else:
+        most_relev_instruc = candidates[0][0]
+        response = most_relev_instruc
+
     return json.dumps({'response' : response})
 
 
@@ -320,10 +363,11 @@ def text2int(textnum, numwords={}):
 
 
 def main():
-    recipe_id = 608382
-    text = "what is step two"
+    recipe_id = 161915
+    # text = "what is step two"
     # print respond_to_ing_qty(text, recipe_id)
     # text = "what is step three"
+    text = "how long do i bake"
     print route_command(text, recipe_id)
 
 if __name__ == '__main__':
