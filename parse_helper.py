@@ -96,13 +96,19 @@ def respond_to_step(text, recipe_id):
     'what is step <X>?'
     """
     # Which step is required?
-    match = re.search('step (?P<step_num>\d+)', text)
-    step_num = int(match.group('step_num'))
+    match = re.search('step (?P<step_num>\w+)', text)
+    step_str = match.group('step_num')
+
+    try:
+        step_num = int(step_str)
+    except ValueError:
+        step_num = text2int(step_str)
 
     # What are the steps in the recipe?
     recipe_info_str = json.loads(get_recipe_info(recipe_id))
     recipe_info = recipe_info_str['response']
-    instructions = recipe_info["Instructions"].split('. ')
+    raw_instructions = recipe_info["Instructions"].replace('\r', '').replace('\n', '')
+    instructions = raw_instructions.split('. ')
     num_instructions = len(instructions)
 
     # Construct response
@@ -160,11 +166,42 @@ def respond_to_ready(text):
     pass
 
 
+def text2int(textnum, numwords={}):
+    if not numwords:
+      units = [
+        "zero", "one", "two", "three", "four", "five", "six", "seven", "eight",
+        "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen",
+        "sixteen", "seventeen", "eighteen", "nineteen",
+      ]
+
+      tens = ["", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"]
+
+      scales = ["hundred", "thousand", "million", "billion", "trillion"]
+
+      numwords["and"] = (1, 0)
+      for idx, word in enumerate(units):    numwords[word] = (1, idx)
+      for idx, word in enumerate(tens):     numwords[word] = (1, idx * 10)
+      for idx, word in enumerate(scales):   numwords[word] = (10 ** (idx * 3 or 2), 0)
+
+    current = result = 0
+    for word in textnum.split():
+        if word not in numwords:
+          raise Exception("Illegal word: " + word)
+
+        scale, increment = numwords[word]
+        current = current * scale + increment
+        if scale > 100:
+            result += current
+            current = 0
+
+    return result + current
+
+
 def main():
-    recipe_id = 158905
-    text = "how much of garlic is required?"
+    recipe_id = 190371
+    # text = "how much of garlic is required?"
     # print respond_to_ing_qty(text, recipe_id)
-    # text = "what is step 2?"
+    text = "what is step three"
     print route_command(text, recipe_id)
 
 if __name__ == '__main__':
