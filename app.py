@@ -9,6 +9,8 @@ from flask.ext.cors import CORS, cross_origin
 
 import requests
 
+import sqlite3
+
 from persistent_helpers import get_recipe_info, get_recipe_short_descriptions
 from parse_helper import route_command
 
@@ -23,6 +25,9 @@ cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 
 
+conn = sqlite3.connect('temperature.db')
+
+
 @app.route('/recipes/api/v1.0/recipes', methods=['GET'])
 @cross_origin()
 def get_recipes():
@@ -34,7 +39,14 @@ def get_recipes():
 
 @app.route('/temp', methods=['GET'])
 def store_temperature():
-    value = float(request.args.get('t'))
+    query_template = 'INSERT INTO TEMPERATURE(TEMPERATURE) VALUES(%f);'
+    temp_value = float(request.args.get('t'))
+
+    query = query_template % temp_value
+    c = conn.cursor()
+    c.execute(query)
+    conn.commit()
+
     print value
     return 'OK'
 
