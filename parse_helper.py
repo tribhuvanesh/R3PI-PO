@@ -262,7 +262,15 @@ def respond_to_cal(text, recipe_id):
     """Respond to
     how many calories does this contain
     """
-    response = 'None'
+    # Get Recipe
+    recipe_info = json.loads(get_recipe_info(recipe_id))['response']
+    calories = recipe_info.get("Calories", None)
+
+    if calories is None:
+        response = "Nutritional value unavailable."
+    else:
+        response = "This dish contains %s kilocalories" % calories
+
     return json.dumps({'response' : response})
 
 
@@ -313,7 +321,7 @@ def text2int(textnum, numwords={}):
 
 def main():
     recipe_id = 608382
-    text = "how much olive oil"
+    text = "how many calories does this contain"
     # print respond_to_ing_qty(text, recipe_id)
     # text = "what is step three"
     print route_command(text, recipe_id)
