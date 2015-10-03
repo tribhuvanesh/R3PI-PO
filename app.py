@@ -32,6 +32,12 @@ def get_recipes():
     return get_recipe_short_descriptions()
 
 
+@app.route('/temp', methods=['GET'])
+def store_temperature():
+    value = float(request.args.get('t'))
+    print value
+    return 'OK'
+
 @app.route('/recipes/api/v1.0/recipe_info', methods=['GET'])
 @cross_origin()
 def get_recipes_info():
