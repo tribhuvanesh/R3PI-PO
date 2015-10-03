@@ -4,10 +4,12 @@ from flask import jsonify
 
 import nltk
 from nltk.stem.snowball import SnowballStemmer
+from nltk.corpus import stopwords
 
 from persistent_helpers import get_recipe_info
 
 stemmer = SnowballStemmer("english")
+stop = stopwords.words('english')
 
 def route_command(text, recipe_id):
     """Decide if command is:
@@ -47,26 +49,44 @@ def exec_generic_command(recipe_id, text):
     """Execute generic command:
     A. what is step <X>?
     B. how much of <X> is required?
+    C. where do i use <X>?
+    D. how many calories does this contain?
+    E. how long do i cook <X>?
 
     @type recipe_id: number
     @type text: Request as String
     @return: Respose as String
     """
-    # Keywords for A and B
+    # Keywords for A
     step_kw = ['step']
+    # Keywords for B
     ing_qty_kw = ['how much', 'required', 'needed', 'need', 'how many']
+    # Keywords for C
+    step_use_kw = ['where', 'do i use']
+    # Keywords for D
+    cal_kw = ['calories']
+    # Keywords for E
+    duration_kw = ['how long', 'do i cook']
 
     # Check what kind of a question it is
     step_match = sum([kw in text for kw in step_kw])
     ing_quantity_match = sum([kw in text for kw in ing_qty_kw])
+    step_use_match = sum([kw in text for kw in step_use_kw])
+    cal_match = sum([kw in text for kw in cal_kw])
+    duration_match =  sum([kw in text for kw in duration_kw])
 
-    if step_match == 0 and ing_quantity_match == 0:
-        return None
+    if cal_match > 0:
+        return respond_to_cal(text, recipe_id)
+    elif duration_match > 0:
+        return respond_to_duration(text, recipe_id)
+    elif step_use_match > 0:
+        return respond_to_step_use(text, recipe_id)
     elif step_match > 0 :
         return respond_to_step(text, recipe_id)
     elif ing_quantity_match > 0:
         return respond_to_ing_qty(text, recipe_id)
     else:
+        print 'All routes failed'
         return None
 
 
@@ -131,7 +151,7 @@ def respond_to_ing_qty(text, recipe_id):
     """
     # What is the ingredient?
     # Detect by simple pattern matching
-    match = re.search('how (much|many) (?P<ing>[\w -]+)', text)
+    match = re.search('how (much|many) (?P<ing>[\w -]+) (do i|is req|is need)?', text)
     query_ingredient = match.group('ing')
 
     # What are the ingredients in this recipe?
@@ -162,7 +182,7 @@ def respond_to_ing_qty(text, recipe_id):
         if num_matches > 0:
             candidates += [(dct_ing, num_matches)]
 
-    candidates = sorted(candidates, key=lambda x:x[1])
+    candidates = sorted(candidates, key=lambda x:-x[1])
 
     if len(candidates) == 0:
         response = "%s is not necessary" % query_ingredient
@@ -171,6 +191,77 @@ def respond_to_ing_qty(text, recipe_id):
     else:
         response = "Did you mean %s? %s %s required" % ing_dct[candidates[0][0]]
 
+    return json.dumps({'response' : response})
+
+
+def respond_to_duration(text, recipe_id):
+    """Respond to
+    how long do i cook <X>
+    """
+    response = 'None'
+    return json.dumps({'response' : response})
+
+
+def respond_to_step_use(text, recipe_id):
+    """Respond to
+    where do i use <X>?
+    """
+    # What is the ingredient?
+    # Detect by simple pattern matching
+    match = re.search('where do i use (?P<ing>[\w -]+)', text)
+    query_ingredient = match.group('ing')
+
+    # Clean up recipe tokens
+    # a. tokenize the ingredients
+    recipe_tokens = nltk.word_tokenize(query_ingredient)
+    # b. stem the tokens
+    recipe_tokens = set([stemmer.stem(token) for token in recipe_tokens])
+    # c. remove stop words
+    recipe_tokens = set([token for token in recipe_tokens if token not in stop])
+
+    # Iterate over steps, find relevant steps, add with a score
+    # What are the steps in the recipe?
+    recipe_info_str = json.loads(get_recipe_info(recipe_id))
+    recipe_info = recipe_info_str['response']
+    raw_instructions = recipe_info["Instructions"].replace('\r', '').replace('\n', '')
+    instructions = raw_instructions.split('. ')
+    num_instructions = len(instructions)
+
+    candidates = []
+
+    for idx, instruc in enumerate(instructions):
+        instruc_tokens = nltk.word_tokenize(instruc)
+        instruc_tokens = [stemmer.stem(token) for token in instruc_tokens]
+        instruc_tokens = set([token for token in instruc_tokens if token not in stop])
+
+        num_matches = len(instruc_tokens & recipe_tokens)
+        step_num = idx + 1
+
+        if num_matches > 0:
+            candidates += [(instruc, step_num, num_matches), ]
+
+    candidates = sorted(candidates, key=lambda x:x[1])
+
+    if len(candidates) == 0:
+        response = '%s not used in any step.' % query_ingredient
+    elif len(candidates) == 1:
+        instruc, step_num, num_matches = candidates[0]
+        response = 'In step %d. %s' % (step_num, instruc)
+    else:
+        # Get list of steps where its used
+        steps_used = [str(cand[1]) for cand in candidates]
+        response = 'In steps ' + ', '.join(steps_used) + '. '
+        for instruc, step_num, num_matches in candidates:
+            response += 'In step %d. %s' % (step_num, instruc)
+
+    return json.dumps({'response' : response})
+
+
+def respond_to_cal(text, recipe_id):
+    """Respond to
+    how many calories does this contain
+    """
+    response = 'None'
     return json.dumps({'response' : response})
 
 
@@ -220,8 +311,8 @@ def text2int(textnum, numwords={}):
 
 
 def main():
-    recipe_id = 190371
-    text = "how much red chili pepper"
+    recipe_id = 180080
+    text = "where do i use onion"
     # print respond_to_ing_qty(text, recipe_id)
     # text = "what is step three"
     print route_command(text, recipe_id)
