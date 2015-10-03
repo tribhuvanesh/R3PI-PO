@@ -11,7 +11,7 @@ import requests
 from persistent_helpers import get_recipe_info, get_recipe_short_descriptions
 from parse_helper import route_command
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='')
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 
