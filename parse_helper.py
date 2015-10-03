@@ -235,7 +235,7 @@ def respond_to_duration(text, recipe_id):
             num_matches = instruc_tokens & action_tokens
             candidates += [(instruc, num_matches), ]
 
-    candidates = sorted(candidates, key=lambda x: x[1])
+    candidates = sorted(candidates, key=lambda x: -x[1])
 
     if len(candidates) == 0:
         response = 'error'
