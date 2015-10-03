@@ -121,7 +121,7 @@ def respond_to_step(text, recipe_id):
     'what is step <X>?'
     """
     # Which step is required?
-    match = re.search('step[s]? (?P<step_num>\w+)', text)
+    match = re.search('step[s]?\s+(number\s+)?(?P<step_num>\w+)', text)
     step_str = match.group('step_num')
 
     try:
@@ -321,7 +321,7 @@ def text2int(textnum, numwords={}):
 
 def main():
     recipe_id = 608382
-    text = "how many calories does this contain"
+    text = "what is step two"
     # print respond_to_ing_qty(text, recipe_id)
     # text = "what is step three"
     print route_command(text, recipe_id)
