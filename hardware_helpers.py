@@ -2,7 +2,7 @@
 import json, sqlite3
 
 def get_latest_temperatures():
-    query = """SELECT * FROM TEMPERATURE ORDER BY TIMESTAMP DESC LIMIT 10;""";
+    query = """SELECT * FROM TEMPERATURE ORDER BY TIMESTAMP DESC LIMIT 100;""";
     conn = sqlite3.connect('temperature.db')
     cur = conn.cursor()
     cur.execute(query)
