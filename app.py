@@ -1,8 +1,12 @@
 #!flask/bin/python
 __author__ = 'tribhu'
 
+import json
+
 from flask import Flask, jsonify, abort, make_response, url_for, request
 from flask.ext.cors import CORS, cross_origin
+
+import requests
 
 from persistent_helpers import get_recipe_info, get_recipe_short_descriptions
 from parse_helper import route_command
@@ -48,6 +52,17 @@ def get_recipe():
         abort(404)
     return response_json
 
+@app.route('/tokens/api/v1.0/watson_token', methods=['GET'])
+@cross_origin()
+def get_watson_token():
+    """
+    @return: a JSON RecipeList object
+    """
+    from creds import watson_username, watson_password
+    service_url = 'https://stream.watsonplatform.net/text-to-speech/api'
+    r = requests.get('https://stream.watsonplatform.net/authorization/api/v1/token?url=%s' % service_url,
+                     auth=(watson_username, watson_password))
+    return json.dumps({'response': r.text})
 
 @app.errorhandler(404)
 def not_found(error):
