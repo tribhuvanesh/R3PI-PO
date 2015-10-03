@@ -4,7 +4,7 @@ from flask import jsonify
 
 from persistent_helpers import get_recipe_info
 
-def route_command(recipe_id, text):
+def route_command(text, recipe_id):
     """Decide if command is:
     a. Generic:
         - what is step <X>?
@@ -20,7 +20,7 @@ def route_command(recipe_id, text):
     """
     text = text.lower()
 
-    tokens = map(lambda x: x.strip().trim(), x.split())
+    tokens = map(lambda x: x.strip(), text.split())
     tokens = set(tokens)
 
     hardware_kw = set(['temperature', 'oven', 'owen'])
@@ -57,9 +57,9 @@ def exec_generic_command(recipe_id, text):
     if step_match == 0 and ing_quantity_match == 0:
         return None
     elif step_match > 0 :
-        respond_to_step(text, recipe_id)
+        return respond_to_step(text, recipe_id)
     elif ing_quantity_match > 0:
-        respond_to_ing_qty(text, recipe_id)
+        return respond_to_ing_qty(text, recipe_id)
     else:
         return None
 
@@ -83,9 +83,9 @@ def exec_hardware_command(text):
     if temp_match == 0 and ready_kw == 0:
         return None
     elif temp_match > 0 :
-        respond_to_step(text)
+        return respond_to_step(text)
     elif ing_quantity_match > 0:
-        ready_match(text)
+        return ready_match(text)
     else:
         return None
 
@@ -108,9 +108,9 @@ def respond_to_step(text, recipe_id):
     if step_num > num_instructions:
         response = "Step %d does not exist. There are %d steps." % (step_num, num_instructions)
     else:
-        response = num_instructions[step_num-1]
+        response = instructions[step_num-1]
 
-    return jsonify({'response' : response})
+    return json.dumps({'response' : response})
 
 
 def respond_to_ing_qty(text, recipe_id):
@@ -128,16 +128,16 @@ def respond_to_ing_qty(text, recipe_id):
     # List of 'ingredient' dicts
     ingredients = recipe_info["Ingredients"]
     # Create a dict {ingredient_name -> quantity}
-    ing_tuples = [(ing['Name'].lower(), int(ing['Quantity']), ing['Unit'].lower())]
-    ing_dct = {name : quantity for name, quantity, unit in ing_tuples}
+    ing_tuples = [(ing['Name'].lower(), ing['Quantity'], ing['Unit'].lower()) for ing in ingredients]
+    ing_dct = {name : (quantity, unit) for name, quantity, unit in ing_tuples}
 
     # Construct a response
     if ingredient not in ing_dct.keys():
         response = "%s is not necessary" % ingredient
     else:
-        response = "%d required" % ing_dct[ingredient]
+        response = "%s %s required" % ing_dct[ingredient]
 
-    return jsonify({'response' : response})
+    return json.dumps({'response' : response})
 
 
 def respond_to_temp(text):
@@ -152,3 +152,14 @@ def respond_to_ready(text):
 
     # Construct response
     pass
+
+
+def main():
+    recipe_id = 1
+    text = "how much of flour is required?"
+    # print respond_to_ing_qty(text, recipe_id)
+    # text = "what is step 2?"
+    print route_command(text, recipe_id)
+
+if __name__ == '__main__':
+    main()
