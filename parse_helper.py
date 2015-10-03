@@ -232,7 +232,7 @@ def respond_to_duration(text, recipe_id):
 
         if is_duration_instruc:
             # Calculate score
-            num_matches = instruc_tokens & action_tokens
+            num_matches = len(instruc_tokens & action_tokens)
             candidates += [(instruc, num_matches), ]
 
     candidates = sorted(candidates, key=lambda x: -x[1])
@@ -363,11 +363,11 @@ def text2int(textnum, numwords={}):
 
 
 def main():
-    recipe_id = 161915
+    recipe_id = 608382
     # text = "what is step two"
     # print respond_to_ing_qty(text, recipe_id)
     # text = "what is step three"
-    text = "how long do i bake"
+    text = "how long do i parboil the red potatoes"
     print route_command(text, recipe_id)
 
 if __name__ == '__main__':
