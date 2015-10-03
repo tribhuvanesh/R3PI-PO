@@ -65,7 +65,7 @@ def get_temperature():
         id, temp, timestamp = row
         print id, temp, timestamp
         temp_list += [temp, ]
-        ts_list += [ts, ]
+        ts_list += [timestamp, ]
 
     cur.close()
     conn.close()
