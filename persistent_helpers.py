@@ -72,7 +72,8 @@ def get_recipe_info(recipe_id):
     4. jsonify the data and return
     """
 
-    lst = get_recipe_ids()
+    dct = json.loads(get_recipe_ids())
+    lst = dct['response']
     if recipe_id not in lst:
         url_path = "http://api.bigoven.com/recipe/" + str(recipe_id) + "?api_key=" + bigOvenAPIkey
         headers = {
