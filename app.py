@@ -28,7 +28,7 @@ def get_recipe():
     text = request.args.get('text')
     response_json = route_command(text, recipe_id)
 
-    if recipe_blob == None:
+    if response_json == None:
         abort(404)
     return response_json
 
