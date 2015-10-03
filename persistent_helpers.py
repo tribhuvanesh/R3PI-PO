@@ -68,7 +68,9 @@ def get_recipe_info(recipe_id):
     lst = get_recipe_ids()
     if recipe_id not in lst:
         url_path = "http://api.bigoven.com/recipe/" + str(recipe_id) + "?api_key=" + bigOvenAPIkey
-        recipe_info_str = json.load(urllib2.urlopen(url_path))
+        resp =  urllib2.urlopen(url_path).read()
+        print resp
+        recipe_info_str = json.loads(resp)
         response = recipe_info_str
     else:
         json_fname = "%d.json" % recipe_id
@@ -78,7 +80,7 @@ def get_recipe_info(recipe_id):
     return response
 
 def main():
-    print get_recipe_info(1)
+    print get_recipe_info(158905)
 
 
 if __name__ == '__main__':
