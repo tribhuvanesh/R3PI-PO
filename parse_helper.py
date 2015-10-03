@@ -2,7 +2,12 @@
 import re, json
 from flask import jsonify
 
+import nltk
+from nltk.stem.snowball import SnowballStemmer
+
 from persistent_helpers import get_recipe_info
+
+stemmer = SnowballStemmer("english")
 
 def route_command(text, recipe_id):
     """Decide if command is:
@@ -96,7 +101,7 @@ def respond_to_step(text, recipe_id):
     'what is step <X>?'
     """
     # Which step is required?
-    match = re.search('step (?P<step_num>\w+)', text)
+    match = re.search('step[s]? (?P<step_num>\w+)', text)
     step_str = match.group('step_num')
 
     try:
@@ -122,12 +127,12 @@ def respond_to_step(text, recipe_id):
 
 def respond_to_ing_qty(text, recipe_id):
     """Respond to:
-    'how much of <X> is required?'
+    'how much <X> is required?'
     """
     # What is the ingredient?
     # Detect by simple pattern matching
-    match = re.search('of (?P<ing>\w+) is', text)
-    ingredient = match.group('ing')
+    match = re.search('how (much|many) (?P<ing>[\w -]+)', text)
+    query_ingredient = match.group('ing')
 
     # What are the ingredients in this recipe?
     recipe_info_str = json.loads(get_recipe_info(recipe_id))
@@ -143,11 +148,28 @@ def respond_to_ing_qty(text, recipe_id):
 
         ing_dct[name] = (quantity, units)
 
-    # Construct a response
-    if ingredient not in ing_dct.keys():
-        response = "%s is not necessary" % ingredient
+    # What's the quantity required?
+    # Clean up recipe tokens
+    # a. tokenize the ingredients
+    recipe_tokens = nltk.word_tokenize(query_ingredient)
+    # b. stem the tokens
+    recipe_tokens = set([stemmer.stem(token) for token in recipe_tokens])
+    candidates = []
+    for dct_ing in ing_dct:
+        query_tokens = nltk.word_tokenize(dct_ing)
+        query_tokens = set([stemmer.stem(token) for token in query_tokens])
+        num_matches = len(recipe_tokens & query_tokens)
+        if num_matches > 0:
+            candidates += [(dct_ing, num_matches)]
+
+    candidates = sorted(candidates, key=lambda x:x[1])
+
+    if len(candidates) == 0:
+        response = "%s is not necessary" % query_ingredient
+    elif len(candidates) == 1:
+        response = "%s %s required" % ing_dct[candidates[0][0]]
     else:
-        response = "%s %s required" % ing_dct[ingredient]
+        response = "Did you mean %s? %s %s required" % ing_dct[candidates[0][0]]
 
     return json.dumps({'response' : response})
 
@@ -199,9 +221,9 @@ def text2int(textnum, numwords={}):
 
 def main():
     recipe_id = 190371
-    # text = "how much of garlic is required?"
+    text = "how much red chili pepper"
     # print respond_to_ing_qty(text, recipe_id)
-    text = "what is step three"
+    # text = "what is step three"
     print route_command(text, recipe_id)
 
 if __name__ == '__main__':
