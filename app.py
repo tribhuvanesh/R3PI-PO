@@ -16,6 +16,15 @@ def get_recipes():
     return get_recipe_ids()
 
 
+@app.route('/recipes/api/v1.0/recipe_info', methods=['GET'])
+def get_recipes_info():
+    """
+    @return: a JSON RecipeList object
+    """
+    recipe_id =  int(request.args.get('recipe_id'))
+    return get_recipe_info(recipe_id)
+
+
 @app.route('/recipes/api/v1.0/ask', methods=['GET'])
 def get_recipe():
     """get_recipe requires two GET parameters:

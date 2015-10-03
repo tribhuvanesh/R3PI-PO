@@ -80,14 +80,13 @@ def get_recipe_info(recipe_id):
         headers = {'content-type': 'application/json'}
         req = requests.get(url_path, headers=headers)
         content = req.content
-        recipe_info_str = json.loads(content)
-        response = recipe_info_str
+        recipe_info = json.loads(content)
     else:
         json_fname = "%d.json" % recipe_id
         json_path = os.path.join("recipeJSONs",  json_fname)
         recipe_info_str = open(json_path).read()
-        response = recipe_info_str
-    return response
+        recipe_info = json.loads(recipe_info_str)
+    return json.dumps({'response' : recipe_info})
 
 def main():
     print get_recipe_info(158905)

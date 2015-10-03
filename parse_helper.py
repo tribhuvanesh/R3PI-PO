@@ -100,8 +100,8 @@ def respond_to_step(text, recipe_id):
     step_num = int(match.group('step_num'))
 
     # What are the steps in the recipe?
-    recipe_info_str = get_recipe_info(recipe_id)
-    recipe_info = json.loads(recipe_info_str)
+    recipe_info_str = json.loads(get_recipe_info(recipe_id))
+    recipe_info = recipe_info_str['response']
     instructions = recipe_info["Instructions"].split('. ')
     num_instructions = len(instructions)
 
@@ -124,8 +124,8 @@ def respond_to_ing_qty(text, recipe_id):
     ingredient = match.group('ing')
 
     # What are the ingredients in this recipe?
-    recipe_info_str = get_recipe_info(recipe_id)
-    recipe_info = json.loads(recipe_info_str)
+    recipe_info_str = json.loads(get_recipe_info(recipe_id))
+    recipe_info = recipe_info_str['response']
     # List of 'ingredient' dicts
     ingredients = recipe_info["Ingredients"]
     # Create a dict {ingredient_name -> quantity}
@@ -161,7 +161,7 @@ def respond_to_ready(text):
 
 
 def main():
-    recipe_id = 162806
+    recipe_id = 158905
     text = "how much of garlic is required?"
     # print respond_to_ing_qty(text, recipe_id)
     # text = "what is step 2?"
