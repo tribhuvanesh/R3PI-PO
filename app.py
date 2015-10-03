@@ -36,7 +36,7 @@ def get_recipes():
 
 @app.route('/temp', methods=['GET'])
 def store_temperature():
-    query_template = 'INSERT INTO TEMPERATURE(TEMPERATURE) VALUES(%f);'
+    query_template = """INSERT INTO TEMPERATURE(TEMPERATURE) VALUES(%f);"""
     temp_value = float(request.args.get('t'))
 
     query = query_template % temp_value
@@ -49,6 +49,22 @@ def store_temperature():
 
     print temp_value
     return 'OK'
+
+
+@app.route('/get_temp', methods=['GET'])
+def get_temperature():
+    query = """SELECT * FROM TEMPERATURE ORDER BY TIMESTAMP DESC LIMIT 10;""";
+    conn = sqlite3.connect('temperature.db')
+    cur = conn.cursor()
+    cur.execute(query)
+
+    for row in cur:
+        id, temp, timestamp = row
+        print id, temp, timestamp
+
+    cur.close()
+    conn.close()
+
 
 @app.route('/recipes/api/v1.0/recipe_info', methods=['GET'])
 @cross_origin()
