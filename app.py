@@ -25,9 +25,6 @@ cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 
 
-conn = sqlite3.connect('temperature.db')
-
-
 @app.route('/recipes/api/v1.0/recipes', methods=['GET'])
 @cross_origin()
 def get_recipes():
@@ -43,9 +40,12 @@ def store_temperature():
     temp_value = float(request.args.get('t'))
 
     query = query_template % temp_value
+    conn = sqlite3.connect('temperature.db')
     c = conn.cursor()
     c.execute(query)
     conn.commit()
+    c.close()
+    conn.close()
 
     print value
     return 'OK'
