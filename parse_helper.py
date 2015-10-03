@@ -151,7 +151,7 @@ def respond_to_ing_qty(text, recipe_id):
     """
     # What is the ingredient?
     # Detect by simple pattern matching
-    match = re.search('how (much|many) (?P<ing>[\w -]+)(\w(do i|is req|is need)?)?', text)
+    match = re.search('how (much|many) (?P<ing>[\w -]+)', text)
     query_ingredient = match.group('ing')
 
     # What are the ingredients in this recipe?
@@ -186,10 +186,11 @@ def respond_to_ing_qty(text, recipe_id):
 
     if len(candidates) == 0:
         response = "%s is not necessary" % query_ingredient
-    elif len(candidates) == 1:
-        response = "%s %s required" % ing_dct[candidates[0][0]]
+    #elif len(candidates) == 1:
     else:
-        response = "Did you mean %s? %s %s required" % ing_dct[candidates[0][0]]
+        response = "%s %s required" % ing_dct[candidates[0][0]]
+    #else:
+    #    response = "Did you mean %s? %s %s required" % (candidates[0][0], ing_dct[candidates[0][0]][0], ing_dct[candidates[0][0]][1])
 
     return json.dumps({'response' : response})
 
@@ -312,7 +313,7 @@ def text2int(textnum, numwords={}):
 
 def main():
     recipe_id = 608382
-    text = "how much honey do i need"
+    text = "how much olive oil"
     # print respond_to_ing_qty(text, recipe_id)
     # text = "what is step three"
     print route_command(text, recipe_id)
