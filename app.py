@@ -2,6 +2,7 @@
 __author__ = 'tribhu'
 
 import json
+import ssl
 
 from flask import Flask, jsonify, abort, make_response, url_for, request
 from flask.ext.cors import CORS, cross_origin
@@ -11,6 +12,12 @@ import requests
 from persistent_helpers import get_recipe_info, get_recipe_short_descriptions
 from parse_helper import route_command
 
+context = None
+try:
+    context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
+    context.load_cert_chain('yourserver.crt', 'yourserver.key')
+except:
+    pass
 app = Flask(__name__, static_url_path='')
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
@@ -80,4 +87,4 @@ def make_public_task(recipe):
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, ssl_context=context)
