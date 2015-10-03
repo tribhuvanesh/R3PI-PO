@@ -48,7 +48,6 @@ def store_temperature():
     c.close()
     conn.close()
 
-    print temp_value
     return 'OK'
 
 
