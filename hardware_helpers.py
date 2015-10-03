@@ -1,8 +1,8 @@
 #!flask/bin/python
-import json, sqlite3
+import json, sqlite3, time, datetime
 
 def get_latest_temperatures():
-    query = """SELECT * FROM TEMPERATURE ORDER BY TIMESTAMP DESC LIMIT 100;""";
+    query = """SELECT ID, TEMPERATURE, TIMESTAMP FROM TEMPERATURE ORDER BY TIMESTAMP DESC LIMIT 100;""";
     conn = sqlite3.connect('temperature.db')
     cur = conn.cursor()
     cur.execute(query)
@@ -12,8 +12,12 @@ def get_latest_temperatures():
 
     for row in cur:
         id, temp, timestamp = row
+        # print type(timestamp)
+        # timestamp = time.mktime(timestamp.timetuple())
+        epochmills = time.mktime(datetime.datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S").timetuple())
+        print epochmills
         temp_list += [temp, ]
-        ts_list += [timestamp, ]
+        ts_list += [epochmills, ]
 
     cur.close()
     conn.close()
