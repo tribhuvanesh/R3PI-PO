@@ -47,7 +47,7 @@ def store_temperature():
     c.close()
     conn.close()
 
-    print value
+    print temp_value
     return 'OK'
 
 @app.route('/recipes/api/v1.0/recipe_info', methods=['GET'])
