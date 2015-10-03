@@ -58,12 +58,21 @@ def get_temperature():
     cur = conn.cursor()
     cur.execute(query)
 
+    ts_list = []
+    temp_list = []
+
     for row in cur:
         id, temp, timestamp = row
         print id, temp, timestamp
+        temp_list += [temp, ]
+        ts_list += [ts, ]
 
     cur.close()
     conn.close()
+
+    response = {'ts_list' : ts_list, 'temp_list' : temp_list}
+
+    return json.dumps({'response': response})
 
 
 @app.route('/recipes/api/v1.0/recipe_info', methods=['GET'])
