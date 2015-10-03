@@ -27,6 +27,7 @@
     "LastName": null
   },
   "Calories": 245.23,
+  "Temperature": 220,
   "Ingredients": [
     {
       "IngredientID": 4636227,
