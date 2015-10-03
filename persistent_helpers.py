@@ -3,6 +3,7 @@ import json
 import os
 import urllib2
 import httplib2 as http
+import requests
 
 try:
     from urlparse import urlparse
@@ -76,18 +77,10 @@ def get_recipe_info(recipe_id):
     lst = dct['response']
     if recipe_id not in lst:
         url_path = "http://api.bigoven.com/recipe/" + str(recipe_id) + "?api_key=" + bigOvenAPIkey
-        headers = {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json; charset=UTF-8'
-        }
-        method = 'GET'
-        body = ' '
-        h = http.Http()
-        content = h.request(url_path, method, body, headers)
+        headers = {'content-type': 'application/json'}
+        req = requests.get(url_path, headers=headers)
+        content = req.content
         recipe_info_str = json.loads(content)
-        resp =  urllib2.urlopen(url_path).read()
-        print resp
-        recipe_info_str = json.loads(resp)
         response = recipe_info_str
     else:
         json_fname = "%d.json" % recipe_id

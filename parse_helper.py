@@ -129,8 +129,13 @@ def respond_to_ing_qty(text, recipe_id):
     # List of 'ingredient' dicts
     ingredients = recipe_info["Ingredients"]
     # Create a dict {ingredient_name -> quantity}
-    ing_tuples = [(ing['Name'].lower(), ing['Quantity'], ing['Unit'].lower()) for ing in ingredients]
-    ing_dct = {name : (quantity, unit) for name, quantity, unit in ing_tuples}
+    ing_dct = {}
+    for ing in ingredients:
+        name = ing['Name'].lower()
+        quantity = ing['Quantity']
+        units = ing.get('Unit', '')
+
+        ing_dct[name] = (quantity, units)
 
     # Construct a response
     if ingredient not in ing_dct.keys():
@@ -156,8 +161,8 @@ def respond_to_ready(text):
 
 
 def main():
-    recipe_id = 1
-    text = "how much of flour is required?"
+    recipe_id = 162806
+    text = "how much of garlic is required?"
     # print respond_to_ing_qty(text, recipe_id)
     # text = "what is step 2?"
     print route_command(text, recipe_id)
