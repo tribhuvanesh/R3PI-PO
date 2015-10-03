@@ -4,6 +4,7 @@ __author__ = 'tribhu'
 from flask import Flask, jsonify, abort, make_response, url_for, request
 
 from persistent_helpers import get_recipe_info, get_recipe_ids
+from parse_helper import route_command
 
 app = Flask(__name__)
 
@@ -25,11 +26,11 @@ def get_recipe():
     """
     recipe_id =  int(request.args.get('recipe_id'))
     text = request.args.get('text')
-    recipe_blob = get_recipe_info(recipe_id)
+    response_json = route_command(recipe_id, text)
 
     if recipe_blob == None:
         abort(404)
-    return recipe_blob
+    return response_json
 
 
 @app.errorhandler(404)

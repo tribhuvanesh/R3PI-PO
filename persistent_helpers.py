@@ -4,7 +4,7 @@ import glob
 import os
 
 from flask import Flask, jsonify
-from creds.py import bigOvenAPIkey
+from creds import bigOvenAPIkey
 
 recipe_blob_dct = {
     1 : {
@@ -42,7 +42,7 @@ def get_recipe_ids():
 
     #list = [None] * jsonCounter
 
-    dirListing = os.listdir(".../recipeJSONs/")
+    dirListing = os.listdir("recipeJSONs/")
     lst = []
     tempName = []
 
@@ -68,20 +68,19 @@ def get_recipe_info(recipe_id):
     3. Else, make API call to get the JSON data from bigOven
     4. jsonify the data and return
     """
+
     list = get_recipe_ids()
-    if recipe_id in list:
-
-
-    """
-    if recipe_id not in recipe_blob_dct.keys():
-        return None
+    if recipe_id not in list:
+        response = None
     else:
-        return jsonify(recipe_blob_dct[recipe_id])
-    """
-
+        json_fname = "%d.json" % recipe_id
+        json_path = os.path.join("recipeJSONs",  json_fname)
+        recipe_info_str = open(json_path).read()
+        response = recipe_info_str
+    return response
 
 def main():
-    print get_recipe_ids()
+    print get_recipe_info(1)
 
 
 if __name__ == '__main__':

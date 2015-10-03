@@ -58,3 +58,4 @@ target/
 
 # Custom stuff
 flask/
+creds.py
