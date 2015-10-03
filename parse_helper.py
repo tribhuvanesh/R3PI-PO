@@ -19,6 +19,7 @@ def route_command(text, recipe_id):
     @return: Respose as String
     """
     text = text.lower()
+    recipe_id = int(recipe_id)
 
     tokens = map(lambda x: x.strip(), text.split())
     tokens = set(tokens)
