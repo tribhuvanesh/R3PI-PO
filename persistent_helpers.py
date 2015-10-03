@@ -53,11 +53,12 @@ def get_recipe_ids():
             tempName = os.path.splitext(item)[0]
             lst.append(int(tempName))
 
-    return lst
+    response = json.dumps({'response' : lst})
+    return response
     #return jsonify({'list': recipe_blob_dct.keys()})
 
 
-def 
+def
 (recipe_id):
     """Information about the recipe
 
