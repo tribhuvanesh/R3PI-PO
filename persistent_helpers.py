@@ -1,7 +1,7 @@
 #!flask/bin/python
 import json
-import glob
 import os
+import urllib2
 
 from flask import Flask, jsonify
 from creds import bigOvenAPIkey
@@ -38,10 +38,6 @@ def get_recipe_ids():
     2. Make array of integers with the names of the files
     """
 
-    #jsonCounter = len(glob.glob1(".../recipeJSONs/","*.json"))
-
-    #list = [None] * jsonCounter
-
     dirListing = os.listdir("recipeJSONs/")
     lst = []
     tempName = []
@@ -69,9 +65,11 @@ def get_recipe_info(recipe_id):
     4. jsonify the data and return
     """
 
-    list = get_recipe_ids()
-    if recipe_id not in list:
-        response = None
+    lst = get_recipe_ids()
+    if recipe_id not in lst:
+        url_path = "http://api.bigoven.com/recipe/" + str(recipe_id) + "?api_key=" + bigOvenAPIkey
+        recipe_info_str = json.load(urllib2.urlopen(url_path))
+        response = recipe_info_str
     else:
         json_fname = "%d.json" % recipe_id
         json_path = os.path.join("recipeJSONs",  json_fname)
