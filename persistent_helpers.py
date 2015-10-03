@@ -58,8 +58,7 @@ def get_recipe_ids():
     #return jsonify({'list': recipe_blob_dct.keys()})
 
 
-def
-(recipe_id):
+def get_recipe_info(recipe_id):
     """Information about the recipe
 
     @type recipe_id: number
