@@ -15,7 +15,7 @@ from parse_helper import route_command
 context = None
 try:
     context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
-    context.load_cert_chain('yourserver.crt', 'yourserver.key')
+    context.load_cert_chain('server.crt', 'server.key')
 except:
     pass
 app = Flask(__name__, static_url_path='')
