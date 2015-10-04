@@ -294,9 +294,9 @@ def respond_to_step_use(text, recipe_id):
     else:
         # Get list of steps where its used
         steps_used = [str(cand[1]) for cand in candidates]
-        response = 'In steps ' + ', '.join(steps_used) + '. '
+        response = 'In steps ' + ', '.join(steps_used) + ' . '
         for instruc, step_num, num_matches in candidates:
-            response += 'In step %d. %s' % (step_num, instruc)
+            response += 'In step %d. %s. ' % (step_num, instruc)
 
     return json.dumps({'response' : response})
 
@@ -363,12 +363,12 @@ def text2int(textnum, numwords={}):
 
 
 def main():
-    recipe_id = 608382
+    recipe_id = 466840
     # text = "what is step two"
     # print respond_to_ing_qty(text, recipe_id)
     # text = "what is step three"
     # text = "how long do i parboil the red potatoes"
-    text = "How much honey"
+    text = "where do i use pepper"
     print route_command(text, recipe_id)
 
 if __name__ == '__main__':
